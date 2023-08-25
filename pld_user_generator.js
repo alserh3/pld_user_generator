@@ -93,6 +93,7 @@ console.log(`
 ==============================
 `)
 console.log(`Total Transactions: ${baseAcc.override_accounts[0].investment_transactions.length}
+Total FEES: ${baseAcc.override_accounts[0].investment_transactions.reduce((totFee, fee) => totFee + fee.fees, 0)}
 ==============================
 `)
 
