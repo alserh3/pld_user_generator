@@ -73,7 +73,9 @@ console.log(`
 ==========HOLDINGS============
 ==============================
 `)
+
   let holdings = userAccount.override_accounts[0].holdings;
+  console.log(`Total Holdings: ${holdings.length}`)
   holdings.forEach(
     holding => {
       let field = holding.security.ticker_symbol ? "ticker_symbol" : "isin";
