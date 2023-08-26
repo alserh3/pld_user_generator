@@ -4,6 +4,6 @@
 
 - To generate valid data : an input array is needed
 - The fields for generated user are hardcoded (both: transactions, holdings)
-- To switch from TICKERs to ISINs we need to manually hunt and edit all occurances (WiP :unicorn:)
+- TICKER -> ISIN switch is now smart :unicorn: !
 
 ### I am super excited to receive any feedback and improve the script
