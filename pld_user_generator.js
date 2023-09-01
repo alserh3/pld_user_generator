@@ -87,6 +87,37 @@ console.log(`
 `)
 }
 
+function showBuyIns(userAccount) {
+  let holdingArray = [];
+  userAccount.override_accounts[0].holdings.map(
+    holding => {
+      let field = holding.security.ticker_symbol ? "ticker_symbol" : "isin";
+      holdingArray.push(holding.security[field]);
+    }
+  );
+  let transactionsArray = [];
+  userAccount.override_accounts[0].investment_transactions.map(
+    transaction => {
+      let field = transaction.security.ticker_symbol ? "ticker_symbol" : "isin";
+      transactionsArray.push(transaction.security[field]);
+    }
+  );
+  let uniqueHoldings = holdingArray.filter(holding => !transactionsArray.includes(holding))
+  uniqueHoldings.forEach(
+    holding => {
+      let holdingObject = userAccount.override_accounts[0].holdings.find(
+        hld => {
+          let field = hld.security.ticker_symbol ? "ticker_symbol" : "isin";
+          return hld.security[field] == holding
+        }
+      );
+      console.log(
+        `For ${holding} the number of shares is ${holdingObject.quantity} | cost basis is ${holdingObject.cost_basis} | expected BUY IN for FE: ${holdingObject.cost_basis / holdingObject.quantity}`
+      );
+    }
+  )
+}
+
 function showTransactions(userAccount){
   let transactions = userAccount.override_accounts[0].investment_transactions;
   let holdings = userAccount.override_accounts[0].holdings;
@@ -122,9 +153,11 @@ function showAccount(userAccount){
 //trigger output section 
 
 
-let testSecurityArray = ["IE00B3RBWM25", "IE00B4L5Y983", "IE00BK5BQT80", "IE00B8GKDB10", "IE00B3XXRP09", "IE00BKM4GZ66", "IE00B1XNHC34", "IE00B4X9L533", "IE00BJ0KDQ92", "IE00B5BMR087", 'SPY', 'IVV', 'VOO', 'VTI', 'QQQ', 'VEA', 'VTV', 'IEFA', 'VUG', 'BND', 'AGG', 'VWO', 'IJH', 'IEMG', 'IWF', 'IJR', 'VIG', 'GLD', 'VXUS', 'IWM']
+// let testSecurityArray = ["IE00B3RBWM25", "IE00B4L5Y983", "IE00BK5BQT80", "IE00B8GKDB10", "IE00B3XXRP09", "IE00BKM4GZ66", "IE00B1XNHC34", "IE00B4X9L533", "IE00BJ0KDQ92", "IE00B5BMR087", 'SPY', 'IVV', 'VOO', 'VTI', 'QQQ', 'VEA', 'VTV', 'IEFA', 'VUG', 'BND', 'AGG', 'VWO', 'IJH', 'IEMG', 'IWF', 'IJR', 'VIG', 'GLD', 'VXUS', 'IWM']
+let testSecurityArray = ["US7561091049", "US67066G1040", "US70450Y1038", "US69608A1088", "US0231351067", "DE000A1ML7J1", "US88579Y1010", "FR0000121014", "US22788C1053", "US0378331005"]
 let currencyArray = ["USD"]
 let sanyaUser = generateAccount(testSecurityArray, 8);
 showHoldings(sanyaUser);
+showBuyIns(sanyaUser);
 showTransactions(sanyaUser);
-showAccount(sanyaUser)
+showAccount(sanyaUser);
