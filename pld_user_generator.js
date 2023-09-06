@@ -1,6 +1,19 @@
 Array.prototype.random = function () {
   return this[Math.floor((Math.random() * this.length))];
 }
+Object.prototype.field = function () {
+  return this.security.ticker_symbol ? "ticker_symbol" : "isin";
+}
+//to be populated with more methods if necessary. currently returns ('holdings', 'investment_transactions') securities arrays. 
+function securityArrayByType(userAccount, operationType) {
+  let securityArray = [];
+  userAccount.override_accounts[0][operationType].map(
+    obj => securityArray.push(obj.security[obj.field()])
+  )
+  return securityArray
+}
+
+
 //creating holdings (using items from securityArray and amount of items in it 1 to 1)
 function createHolding(security) {
   let currency = currencyArray.random();
@@ -52,7 +65,6 @@ function createTransactionsList(amount, securityArray) {
 
 
 //custom user import constructor. Holdings for every Security, random Transactions (input amount)
-
 function generateAccount(securityArray, transactionsAmount) {
   return {
     "override_accounts": [
@@ -66,6 +78,8 @@ function generateAccount(securityArray, transactionsAmount) {
   }
 }
 
+
+
 //functions to generate output
 function showHoldings(userAccount){
 console.log(`
@@ -77,10 +91,7 @@ console.log(`
   let holdings = userAccount.override_accounts[0].holdings;
   console.log(`Total Holdings: ${holdings.length}`)
   holdings.forEach(
-    holding => {
-      let field = holding.security.ticker_symbol ? "ticker_symbol" : "isin";
-      console.log(`${holding.security[field]} holding ${holding.quantity}`)
-    }
+    holding => console.log(`${holding.security[holding.field()]} holding ${holding.quantity}`)
   )
 console.log(`
 ===============================
@@ -88,29 +99,13 @@ console.log(`
 }
 
 function showBuyIns(userAccount) {
-  let holdingArray = [];
-  userAccount.override_accounts[0].holdings.map(
-    holding => {
-      let field = holding.security.ticker_symbol ? "ticker_symbol" : "isin";
-      holdingArray.push(holding.security[field]);
-    }
-  );
-  let transactionsArray = [];
-  userAccount.override_accounts[0].investment_transactions.map(
-    transaction => {
-      let field = transaction.security.ticker_symbol ? "ticker_symbol" : "isin";
-      transactionsArray.push(transaction.security[field]);
-    }
-  );
-  let uniqueHoldings = holdingArray.filter(holding => !transactionsArray.includes(holding))
+  let holdingArray = securityArrayByType(userAccount, 'holdings');
+  let transactionsArray = securityArrayByType(userAccount, 'investment_transactions');
+  let uniqueHoldings = holdingArray.filter(holding => !transactionsArray.includes(holding));
+
   uniqueHoldings.forEach(
     holding => {
-      let holdingObject = userAccount.override_accounts[0].holdings.find(
-        hld => {
-          let field = hld.security.ticker_symbol ? "ticker_symbol" : "isin";
-          return hld.security[field] == holding
-        }
-      );
+      let holdingObject = userAccount.override_accounts[0].holdings.find(hld => hld.security[hld.field()] == holding);
       console.log(
         `For ${holding} the number of shares is ${holdingObject.quantity} | cost basis is ${holdingObject.cost_basis} | expected BUY IN for FE: ${holdingObject.cost_basis / holdingObject.quantity}`
       );
@@ -133,7 +128,7 @@ function showTransactions(userAccount){
   `)
   holdings.forEach(
     holdingObject => {
-      let field = holdingObject.security.ticker_symbol ? "ticker_symbol" : "isin";
+      let field = holdingObject.field();
       let security = holdingObject.security[field];
       let sumTransactions = transactions
         .filter(transaction => transaction.security[field] == security)
@@ -150,11 +145,11 @@ function showAccount(userAccount){
   console.log(JSON.stringify(userAccount))
 }
 
+
+
 //trigger output section 
-
-
 // let testSecurityArray = ["IE00B3RBWM25", "IE00B4L5Y983", "IE00BK5BQT80", "IE00B8GKDB10", "IE00B3XXRP09", "IE00BKM4GZ66", "IE00B1XNHC34", "IE00B4X9L533", "IE00BJ0KDQ92", "IE00B5BMR087", 'SPY', 'IVV', 'VOO', 'VTI', 'QQQ', 'VEA', 'VTV', 'IEFA', 'VUG', 'BND', 'AGG', 'VWO', 'IJH', 'IEMG', 'IWF', 'IJR', 'VIG', 'GLD', 'VXUS', 'IWM']
-let testSecurityArray = ["US7561091049", "US67066G1040", "US70450Y1038", "US69608A1088", "US0231351067", "DE000A1ML7J1", "US88579Y1010", "FR0000121014", "US22788C1053", "US0378331005"]
+let testSecurityArray = ["US7561091049", "US67066G1040", "AAPL", "US69608A1088", "CDR", "DE000A1ML7J1", "KEK", "FR0000121014", "US22788C1053", "US0378331005"]
 let currencyArray = ["USD"]
 let sanyaUser = generateAccount(testSecurityArray, 8);
 showHoldings(sanyaUser);
